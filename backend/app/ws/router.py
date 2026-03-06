@@ -12,6 +12,7 @@ Lifecycle:
 """
 import json
 import asyncio
+import uuid
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query, Depends
 from sqlalchemy.orm import Session
 
@@ -28,9 +29,10 @@ def _get_user_from_token(token: str, db: Session) -> User | None:
         payload = decode_token(token)
         if not payload:
             return None
-        user_id = payload.get("sub")
-        if not user_id:
+        user_id_str = payload.get("sub")
+        if not user_id_str:
             return None
+        user_id = uuid.UUID(user_id_str)
         return db.query(User).filter(User.id == user_id).first()
     except Exception:
         return None
