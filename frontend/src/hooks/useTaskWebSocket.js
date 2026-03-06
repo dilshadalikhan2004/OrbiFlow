@@ -12,8 +12,9 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 
 // Use explicit env var, or derive from VITE_API_URL, or fallback to localhost
-const WS_BASE = import.meta.env.VITE_WS_URL ||
-    (import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('http', 'ws').replace('/api/v1', '') : 'ws://localhost:8000');
+const rawApiUrl = import.meta.env.VITE_API_URL || '';
+const derivedWsUrl = rawApiUrl ? rawApiUrl.replace('http', 'ws').replace(/\/api\/v1\/?$/, '').replace(/\/+$/, '') : 'ws://localhost:8000';
+const WS_BASE = import.meta.env.VITE_WS_URL || derivedWsUrl;
 
 const RECONNECT_DELAY_MS = 3000;
 const MAX_RECONNECTS = 10;
