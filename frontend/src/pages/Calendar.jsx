@@ -1,12 +1,74 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Plus, X } from 'lucide-react';
+import { useWorkspace } from '../context/WorkspaceContext';
+import { api } from '../api';
 
 const Calendar = () => {
-    const [currentDate, setCurrentDate] = useState(new Date(2024, 11, 1)); // Dec 2024
+    const { activeWorkspaceId } = useWorkspace();
+    const [currentDate, setCurrentDate] = useState(new Date());
     const [showAddModal, setShowAddModal] = useState(false);
 
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const [tasks, setTasks] = useState([]);
+    const [projects, setProjects] = useState([]);
+    const [loading, setLoading] = useState(true);
 
+    const [newEventTitle, setNewEventTitle] = useState('');
+    const [newEventDate, setNewEventDate] = useState('');
+    const [newEventProject, setNewEventProject] = useState('');
+    const [isCreating, setIsCreating] = useState(false);
+
+    useEffect(() => {
+        fetchData();
+        // Set today on load
+        setCurrentDate(new Date());
+    }, [activeWorkspaceId]);
+
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const [tasksData, projectsData] = await Promise.all([
+                api.getTasks(activeWorkspaceId ? { orgId: activeWorkspaceId } : {}),
+                api.getProjects(activeWorkspaceId ? activeWorkspaceId : null)
+            ]);
+            setTasks(tasksData || []);
+            setProjects(projectsData || []);
+        } catch (error) {
+            console.error("Failed to load calendar data:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleCreateEvent = async (e) => {
+        e.preventDefault();
+        if (!newEventProject) {
+            alert("Please select a project for this event.");
+            return;
+        }
+
+        setIsCreating(true);
+        try {
+            // Include a dummy time to ensure it conforms to deadline schema
+            const fullDeadline = new Date(newEventDate).toISOString();
+            await api.createTask({
+                title: newEventTitle,
+                project_id: newEventProject,
+                deadline: fullDeadline,
+                priority: "medium"
+            });
+            setShowAddModal(false);
+            setNewEventTitle('');
+            setNewEventDate('');
+            fetchData();
+        } catch (error) {
+            console.error("Failed to create event:", error);
+            alert("Error creating event: " + error.message);
+        } finally {
+            setIsCreating(false);
+        }
+    };
+
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const monthYear = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
 
     const changeMonth = (offset) => {
@@ -20,6 +82,25 @@ const Calendar = () => {
 
     const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
     const startPadding = Array.from({ length: firstDayOfMonth }, (_, i) => null);
+
+    // Helper: Tasks for a specific day block
+    const getTasksForDate = (dateNum) => {
+        return tasks.filter(t => {
+            if (!t.deadline) return false;
+            const d = new Date(t.deadline);
+            return d.getFullYear() === currentDate.getFullYear() &&
+                d.getMonth() === currentDate.getMonth() &&
+                d.getDate() === dateNum;
+        });
+    };
+
+    // Helper: Next upcoming tasks
+    const upcomingTasks = tasks
+        .filter(t => t.deadline)
+        .map(t => ({ ...t, deadlineObj: new Date(t.deadline) }))
+        .sort((a, b) => a.deadlineObj - b.deadlineObj)
+        .filter(t => t.deadlineObj >= new Date(new Date().setHours(0, 0, 0, 0)))
+        .slice(0, 5);
 
     return (
         <div className="fade-in" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
@@ -53,6 +134,12 @@ const Calendar = () => {
                                 <ChevronLeft size={18} />
                             </button>
                             <button
+                                onClick={() => setCurrentDate(new Date())}
+                                style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', color: 'var(--text-primary)', padding: '0.5rem 1rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '700' }}
+                            >
+                                Today
+                            </button>
+                            <button
                                 onClick={() => changeMonth(1)}
                                 style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', color: 'var(--text-primary)', padding: '0.5rem', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', boxShadow: 'var(--shadow-sm)' }}
                             >
@@ -60,16 +147,10 @@ const Calendar = () => {
                             </button>
                         </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '0.75rem' }}>
-                        <button className="btn btn-secondary" style={{ fontSize: '0.85rem' }}>Today</button>
-                        <select style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
-                            <option>Month View</option>
-                            <option>Week View</option>
-                        </select>
-                    </div>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '2rem' }}>
+                    {/* Calendar Grid */}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '1px', backgroundColor: 'var(--border-light)', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-sm)' }}>
                         {days.map(day => (
                             <div key={day} style={{ backgroundColor: 'var(--bg-subtle)', padding: '1.25rem 1rem', textAlign: 'center', fontSize: '0.85rem', fontWeight: '800', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
@@ -80,8 +161,9 @@ const Calendar = () => {
                             <div key={`pad-${i}`} style={{ backgroundColor: 'rgba(0,0,0,0.02)', minHeight: '110px', border: '0.5px solid var(--border-light)' }} />
                         ))}
                         {dates.map(date => {
-                            const isDec2024 = currentDate.getMonth() === 11 && currentDate.getFullYear() === 2024;
-                            const isToday = isDec2024 && date === 12;
+                            const isToday = new Date().getDate() === date && new Date().getMonth() === currentDate.getMonth() && new Date().getFullYear() === currentDate.getFullYear();
+                            const dayTasks = getTasksForDate(date);
+
                             return (
                                 <div key={date} style={{
                                     backgroundColor: isToday ? 'var(--brand-primary-subtle)' : 'var(--bg-card)',
@@ -104,28 +186,19 @@ const Calendar = () => {
                                         backgroundColor: isToday ? 'rgba(34, 160, 107, 0.1)' : 'transparent',
                                         marginBottom: '0.25rem'
                                     }}>{date}</span>
-                                    {isDec2024 && date === 12 && (
-                                        <div style={{
-                                            marginTop: '0.25rem', backgroundColor: 'var(--brand-primary)',
-                                            color: 'white', padding: '0.3rem 0.5rem',
+
+                                    {dayTasks.map(task => (
+                                        <div key={task.id} style={{
+                                            marginTop: '0.25rem', backgroundColor: task.priority === 'critical' ? 'var(--error-bg)' : 'var(--info-bg)',
+                                            color: task.priority === 'critical' ? 'var(--error)' : 'var(--info)', padding: '0.3rem 0.5rem',
                                             borderRadius: '6px', fontSize: '0.65rem', fontWeight: '700',
-                                            boxShadow: '0 4px 10px var(--brand-primary-subtle)',
-                                            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
-                                        }}>
-                                            API Workshop
+                                            borderLeft: `3px solid ${task.priority === 'critical' ? 'var(--error)' : 'var(--info)'}`,
+                                            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                                            cursor: 'pointer'
+                                        }} title={task.title}>
+                                            {task.title}
                                         </div>
-                                    )}
-                                    {isDec2024 && date === 16 && (
-                                        <div style={{
-                                            marginTop: '0.25rem', backgroundColor: 'var(--info-bg)',
-                                            color: 'var(--info)', padding: '0.3rem 0.5rem',
-                                            borderRadius: '6px', fontSize: '0.65rem', fontWeight: '700',
-                                            borderLeft: '3px solid var(--info)',
-                                            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
-                                        }}>
-                                            Client Meeting
-                                        </div>
-                                    )}
+                                    ))}
                                 </div>
                             );
                         })}
@@ -138,26 +211,27 @@ const Calendar = () => {
                             Agenda
                         </h4>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            <div style={{ padding: '1rem', borderRadius: '12px', backgroundColor: 'var(--bg-subtle)', border: '1px solid var(--border-light)' }}>
-                                <p style={{ fontSize: '0.7rem', fontWeight: '700', color: 'var(--brand-primary)', textTransform: 'uppercase', marginBottom: '0.4rem' }}>Today, 12 Dec</p>
-                                <h5 style={{ fontSize: '0.9rem', fontWeight: '700', marginBottom: '0.25rem' }}>API Workshop</h5>
-                                <p style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>10:00 AM - 11:30 AM</p>
-                            </div>
-                            <div style={{ padding: '1rem', borderRadius: '12px', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-light)' }}>
-                                <p style={{ fontSize: '0.7rem', fontWeight: '700', color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '0.4rem' }}>Mon, 16 Dec</p>
-                                <h5 style={{ fontSize: '0.9rem', fontWeight: '700', marginBottom: '0.25rem' }}>Client Meeting</h5>
-                                <p style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>02:00 PM - 03:00 PM</p>
-                            </div>
-                            <div style={{
-                                padding: '2rem 1rem',
-                                textAlign: 'center',
-                                borderRadius: '12px',
-                                border: '1px dashed var(--border-light)',
-                                color: 'var(--text-tertiary)',
-                                fontSize: '0.8rem'
-                            }}>
-                                No more events scheduled for this week.
-                            </div>
+                            {upcomingTasks.length === 0 ? (
+                                <div style={{
+                                    padding: '2rem 1rem',
+                                    textAlign: 'center',
+                                    borderRadius: '12px',
+                                    border: '1px dashed var(--border-light)',
+                                    color: 'var(--text-tertiary)',
+                                    fontSize: '0.8rem'
+                                }}>
+                                    No more events scheduled for this month.
+                                </div>
+                            ) : (
+                                upcomingTasks.map((task, idx) => (
+                                    <div key={task.id} style={{ padding: '1rem', borderRadius: '12px', backgroundColor: idx === 0 ? 'var(--bg-subtle)' : 'var(--bg-card)', border: '1px solid var(--border-light)' }}>
+                                        <p style={{ fontSize: '0.7rem', fontWeight: '700', color: idx === 0 ? 'var(--brand-primary)' : 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '0.4rem' }}>
+                                            {task.deadlineObj.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' })}
+                                        </p>
+                                        <h5 style={{ fontSize: '0.9rem', fontWeight: '700', marginBottom: '0.25rem' }}>{task.title}</h5>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </div>
                 </div>
@@ -172,18 +246,29 @@ const Calendar = () => {
                                 <X size={20} />
                             </button>
                         </div>
-                        <form onSubmit={(e) => { e.preventDefault(); setShowAddModal(false); }} style={{ padding: '2rem' }}>
+                        <form onSubmit={handleCreateEvent} style={{ padding: '2rem' }}>
                             <div className="form-group mb-4">
                                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Event Title</label>
-                                <input type="text" placeholder="e.g. Design Review" required style={{ width: '100%' }} />
+                                <input type="text" placeholder="e.g. Design Review" required value={newEventTitle} onChange={e => setNewEventTitle(e.target.value)} style={{ width: '100%' }} className="modern-input" />
+                            </div>
+                            <div className="form-group mb-4">
+                                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Event Date</label>
+                                <input type="date" required value={newEventDate} onChange={e => setNewEventDate(e.target.value)} style={{ width: '100%' }} className="modern-input" />
                             </div>
                             <div className="form-group mb-6">
-                                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Event Date</label>
-                                <input type="date" required style={{ width: '100%' }} />
+                                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Link to Project</label>
+                                <select required value={newEventProject} onChange={e => setNewEventProject(e.target.value)} style={{ width: '100%' }} className="modern-input">
+                                    <option value="" disabled>Select a project...</option>
+                                    {projects.map(p => (
+                                        <option key={p.id} value={p.id}>{p.name}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', paddingTop: '1rem', borderTop: '1px solid var(--border-light)' }}>
                                 <button type="button" className="btn btn-secondary" onClick={() => setShowAddModal(false)}>Cancel</button>
-                                <button type="submit" className="btn" style={{ padding: '0.75rem 2rem' }}>Add Event</button>
+                                <button type="submit" className="btn" style={{ padding: '0.75rem 2rem' }} disabled={isCreating}>
+                                    {isCreating ? 'Adding...' : 'Add Event'}
+                                </button>
                             </div>
                         </form>
                     </div>

@@ -489,23 +489,7 @@ const Layout = () => {
                                 boxShadow: isDarkMode ? 'inset 0 2px 4px rgba(0,0,0,0.2)' : 'var(--shadow-sm)'
                             }}
                         >
-                            {isDarkMode ? (
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <circle cx="12" cy="12" r="4"></circle>
-                                    <path d="M12 2v2"></path>
-                                    <path d="M12 20v2"></path>
-                                    <path d="m4.93 4.93 1.41 1.41"></path>
-                                    <path d="m17.66 17.66 1.41 1.41"></path>
-                                    <path d="M2 12h2"></path>
-                                    <path d="M20 12h2"></path>
-                                    <path d="m6.34 17.66-1.41 1.41"></path>
-                                    <path d="m19.07 4.93-1.41 1.41"></path>
-                                </svg>
-                            ) : (
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
-                                </svg>
-                            )}
+                            {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
                         </button>
                     </div>
                 </header>
@@ -515,37 +499,39 @@ const Layout = () => {
                 </div>
             </main>
 
-            {showSettings && (
-                <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && setShowSettings(false)}>
-                    <div className="modal-content card fade-in" style={{ maxWidth: '450px', padding: '0' }}>
-                        <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <h3 style={{ fontSize: '1.25rem', fontWeight: '800' }}>Workspace Settings</h3>
-                            <button onClick={() => setShowSettings(false)} style={{ background: 'none', border: 'none', color: 'var(--text-tertiary)', cursor: 'pointer' }}>
-                                <X size={20} />
-                            </button>
-                        </div>
-                        <div style={{ padding: '2rem' }}>
-                            <div style={{ marginBottom: '1.5rem' }}>
-                                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Workspace Name</label>
-                                <input type="text" defaultValue={`${user?.name}'s Workspace`} style={{ width: '100%' }} />
+            {
+                showSettings && (
+                    <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && setShowSettings(false)}>
+                        <div className="modal-content card fade-in" style={{ maxWidth: '450px', padding: '0' }}>
+                            <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <h3 style={{ fontSize: '1.25rem', fontWeight: '800' }}>Workspace Settings</h3>
+                                <button onClick={() => setShowSettings(false)} style={{ background: 'none', border: 'none', color: 'var(--text-tertiary)', cursor: 'pointer' }}>
+                                    <X size={20} />
+                                </button>
                             </div>
-                            <div style={{ marginBottom: '1.5rem' }}>
-                                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Theme Preference</label>
-                                <div style={{ display: 'flex', gap: '0.75rem' }}>
-                                    <button onClick={() => isDarkMode && toggleTheme()} style={{ flex: 1, padding: '0.75rem', borderRadius: '10px', border: !isDarkMode ? '2px solid var(--brand-primary)' : '1px solid var(--border-light)', background: !isDarkMode ? 'var(--brand-primary-subtle)' : 'var(--bg-card)', color: !isDarkMode ? 'var(--brand-primary)' : 'var(--text-secondary)', fontWeight: '600' }}>Light Mode</button>
-                                    <button onClick={() => !isDarkMode && toggleTheme()} style={{ flex: 1, padding: '0.75rem', borderRadius: '10px', border: isDarkMode ? '2px solid var(--brand-primary)' : '1px solid var(--border-light)', background: isDarkMode ? 'var(--brand-primary-subtle)' : 'var(--bg-card)', color: isDarkMode ? 'var(--brand-primary)' : 'var(--text-secondary)', fontWeight: '600' }}>Dark Mode</button>
+                            <div style={{ padding: '2rem' }}>
+                                <div style={{ marginBottom: '1.5rem' }}>
+                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Workspace Name</label>
+                                    <input type="text" defaultValue={`${user?.name}'s Workspace`} style={{ width: '100%' }} />
+                                </div>
+                                <div style={{ marginBottom: '1.5rem' }}>
+                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Theme Preference</label>
+                                    <div style={{ display: 'flex', gap: '0.75rem' }}>
+                                        <button onClick={() => isDarkMode && toggleTheme()} style={{ flex: 1, padding: '0.75rem', borderRadius: '10px', border: !isDarkMode ? '2px solid var(--brand-primary)' : '1px solid var(--border-light)', background: !isDarkMode ? 'var(--brand-primary-subtle)' : 'var(--bg-card)', color: !isDarkMode ? 'var(--brand-primary)' : 'var(--text-secondary)', fontWeight: '600' }}>Light Mode</button>
+                                        <button onClick={() => !isDarkMode && toggleTheme()} style={{ flex: 1, padding: '0.75rem', borderRadius: '10px', border: isDarkMode ? '2px solid var(--brand-primary)' : '1px solid var(--border-light)', background: isDarkMode ? 'var(--brand-primary-subtle)' : 'var(--bg-card)', color: isDarkMode ? 'var(--brand-primary)' : 'var(--text-secondary)', fontWeight: '600' }}>Dark Mode</button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div style={{ padding: '1.25rem 2rem', backgroundColor: 'var(--bg-subtle)', borderTop: '1px solid var(--border-light)', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
-                            <button className="btn btn-secondary" onClick={() => setShowSettings(false)}>Cancel</button>
-                            <button className="btn" onClick={() => { alert('Settings saved!'); setShowSettings(false); }}>Save Changes</button>
+                            <div style={{ padding: '1.25rem 2rem', backgroundColor: 'var(--bg-subtle)', borderTop: '1px solid var(--border-light)', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+                                <button className="btn btn-secondary" onClick={() => setShowSettings(false)}>Cancel</button>
+                                <button className="btn" onClick={() => { alert('Settings saved!'); setShowSettings(false); }}>Save Changes</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
             <CommandPalette />
-        </div>
+        </div >
     );
 };
 
