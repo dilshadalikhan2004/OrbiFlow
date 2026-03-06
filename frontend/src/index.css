@@ -342,11 +342,33 @@ textarea:focus {
   color: #ffffff;
   border-radius: 8px;
   padding: 0.8rem 1rem;
+  width: 100%;
 }
 
 .modern-input:focus {
   border-color: #3b82f6;
-  box-shadow: none;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.modern-input:-webkit-autofill,
+.modern-input:-webkit-autofill:hover,
+.modern-input:-webkit-autofill:focus,
+.modern-input:-webkit-autofill:active,
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+input[type="email"].modern-input:-webkit-autofill,
+input[type="email"]:-webkit-autofill,
+input[type="password"].modern-input:-webkit-autofill,
+input[type="text"].modern-input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px #1a1a1a inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  color-scheme: dark;
 }
 
 .form-group label {

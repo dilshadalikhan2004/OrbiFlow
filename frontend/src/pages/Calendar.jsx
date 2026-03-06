@@ -249,15 +249,15 @@ const Calendar = () => {
                         <form onSubmit={handleCreateEvent} style={{ padding: '2rem' }}>
                             <div className="form-group mb-4">
                                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Event Title</label>
-                                <input type="text" placeholder="e.g. Design Review" required value={newEventTitle} onChange={e => setNewEventTitle(e.target.value)} style={{ width: '100%' }} className="modern-input" />
+                                <input type="text" placeholder="e.g. Design Review" required value={newEventTitle} onChange={e => setNewEventTitle(e.target.value)} style={{ width: '100%' }} />
                             </div>
                             <div className="form-group mb-4">
                                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Event Date</label>
-                                <input type="date" required value={newEventDate} onChange={e => setNewEventDate(e.target.value)} style={{ width: '100%' }} className="modern-input" />
+                                <input type="date" required value={newEventDate} onChange={e => setNewEventDate(e.target.value)} style={{ width: '100%' }} />
                             </div>
                             <div className="form-group mb-6">
                                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Link to Project</label>
-                                <select required value={newEventProject} onChange={e => setNewEventProject(e.target.value)} style={{ width: '100%' }} className="modern-input">
+                                <select required value={newEventProject} onChange={e => setNewEventProject(e.target.value)} style={{ width: '100%' }}>
                                     <option value="" disabled>Select a project...</option>
                                     {projects.map(p => (
                                         <option key={p.id} value={p.id}>{p.name}</option>

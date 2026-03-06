@@ -16,7 +16,7 @@ const Help = () => {
                     </div>
                     <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Documentation</h3>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '2rem' }}>Detailed guides on every feature, from projects to task workflows.</p>
-                    <button className="btn btn-secondary" style={{ width: '100%' }}>Read Docs <ExternalLink size={14} style={{ marginLeft: '6px' }} /></button>
+                    <a href="https://github.com/dilshadalikhan2004/OrbiFlow#readme" target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ width: '100%', textDecoration: 'none' }}>Read Docs <ExternalLink size={14} style={{ marginLeft: '6px' }} /></a>
                 </div>
 
                 <div className="card hover-effect" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', border: '1px solid var(--border-light)' }}>
@@ -25,7 +25,7 @@ const Help = () => {
                     </div>
                     <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Support Direct</h3>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '2rem' }}>Contact our technical team for hands-on, rapid assistance.</p>
-                    <button className="btn" style={{ width: '100%' }}>Contact Support</button>
+                    <a href="mailto:dilshadalikhanji123@gmail.com?subject=OrbiFlow Support Request" className="btn" style={{ width: '100%', textDecoration: 'none' }}>Contact Support</a>
                 </div>
             </div>
         </div>

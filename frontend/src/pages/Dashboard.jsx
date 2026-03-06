@@ -248,8 +248,8 @@ const Dashboard = () => {
                             <h3 style={{ fontSize: '1.1rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                                 <History size={20} color="var(--brand-primary)" /> Recent Activity
                             </h3>
-                            <button className="btn btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem' }} onClick={() => navigate('/analytics')}>
-                                View History
+                            <button className="btn btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem' }} onClick={() => navigate('/tasks')}>
+                                View All Tasks
                             </button>
                         </div>
 

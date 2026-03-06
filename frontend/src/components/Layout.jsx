@@ -251,32 +251,6 @@ const Layout = () => {
                                 </>
                             )}
                         </NavLink>
-
-                        <div style={{ padding: '1rem 0', margin: '0.5rem 1.25rem' }}>
-                            <button
-                                onClick={() => navigate('/tasks')}
-                                style={{
-                                    width: '100%',
-                                    padding: '0.85rem',
-                                    borderRadius: '12px',
-                                    background: 'linear-gradient(135deg, var(--brand-primary), var(--brand-accent))',
-                                    border: 'none',
-                                    color: 'white',
-                                    fontWeight: '700',
-                                    fontSize: '0.9rem',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '0.6rem',
-                                    boxShadow: '0 8px 16px var(--brand-primary-subtle)',
-                                    cursor: 'pointer'
-                                }}
-                                className="hover-effect"
-                            >
-                                <Plus size={18} strokeWidth={3} /> Quick Create
-                            </button>
-                        </div>
-
                         <NavLink to="/calendar" style={navItemStyle} className="nav-link">
                             {({ isActive }) => (
                                 <>
@@ -286,15 +260,33 @@ const Layout = () => {
                                 </>
                             )}
                         </NavLink>
-                        <NavLink to="/analytics" style={navItemStyle} className="nav-link">
-                            {({ isActive }) => (
-                                <>
-                                    {isActive && <div style={activeIndicatorStyle} />}
-                                    <BarChart2 size={22} strokeWidth={isActive ? 2.5 : 2} />
-                                    <span>Analytics</span>
-                                </>
-                            )}
-                        </NavLink>
+                    </nav>
+                    <div style={{ padding: '1rem 0', margin: '0.5rem 1.25rem' }}>
+                        <button
+                            onClick={() => navigate('/tasks')}
+                            style={{
+                                width: '100%',
+                                padding: '0.85rem',
+                                borderRadius: '12px',
+                                background: 'linear-gradient(135deg, var(--brand-primary), var(--brand-accent))',
+                                border: 'none',
+                                color: 'white',
+                                fontWeight: '700',
+                                fontSize: '0.9rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '0.6rem',
+                                boxShadow: '0 8px 16px var(--brand-primary-subtle)',
+                                cursor: 'pointer'
+                            }}
+                            className="hover-effect"
+                        >
+                            <Plus size={18} strokeWidth={3} /> Quick Create
+                        </button>
+                    </div>
+
+                    <nav className="sidebar-nav" style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                         {user?.role === 'admin' && (
                             <NavLink to="/team" style={navItemStyle} className="nav-link">
                                 {({ isActive }) => (
@@ -346,14 +338,18 @@ const Layout = () => {
                     zIndex: 100,
                     boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
                 }}>
-                    <form onSubmit={handleSearch} style={{ position: 'relative', maxWidth: '450px', width: '100%' }}>
-                        <div style={{ position: 'relative' }}>
+                    <div style={{ flex: 1, maxWidth: '400px', display: 'flex', alignItems: 'center' }}>
+                        <div style={{ position: 'relative', width: '100%' }}>
                             <Search size={18} style={{ position: 'absolute', top: '50%', left: '1rem', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} />
                             <input
                                 type="text"
-                                value={globalSearch}
-                                onChange={e => setGlobalSearch(e.target.value)}
-                                placeholder="Search task"
+                                readOnly
+                                onFocus={(e) => {
+                                    e.target.blur();
+                                    window.dispatchEvent(new Event('open-command-palette'));
+                                }}
+                                onClick={() => window.dispatchEvent(new Event('open-command-palette'))}
+                                placeholder="Search workspace..."
                                 style={{
                                     paddingRight: '3.5rem',
                                     paddingLeft: '3rem',
@@ -364,7 +360,8 @@ const Layout = () => {
                                     width: '100%',
                                     fontSize: '0.95rem',
                                     color: 'var(--text-primary)',
-                                    transition: 'var(--transition)'
+                                    transition: 'var(--transition)',
+                                    cursor: 'pointer'
                                 }}
                             />
                             <div style={{
@@ -376,12 +373,13 @@ const Layout = () => {
                                 border: '1px solid var(--border-light)',
                                 borderRadius: '6px',
                                 padding: '0.1rem 0.35rem',
-                                backgroundColor: 'var(--bg-card)'
+                                backgroundColor: 'var(--bg-card)',
+                                pointerEvents: 'none'
                             }}>
-                                <span style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)' }}>⌘ F</span>
+                                <span style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)' }}>⌘ K</span>
                             </div>
                         </div>
-                    </form>
+                    </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                         <div className="notifications-wrapper" style={{ display: 'flex', gap: '0.5rem', position: 'relative' }}>
@@ -481,7 +479,7 @@ const Layout = () => {
                                 border: '1px solid var(--border-light)',
                                 color: 'var(--text-primary)',
                                 cursor: 'pointer',
-                                width: 42, height: 42,
+                                padding: '0.65rem',
                                 borderRadius: '12px',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 marginLeft: '1rem',

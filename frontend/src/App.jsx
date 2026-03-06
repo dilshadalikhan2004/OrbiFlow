@@ -10,7 +10,6 @@ import Projects from './pages/Projects';
 import Tasks from './pages/Tasks';
 import Team from './pages/Team';
 import Calendar from './pages/Calendar';
-import Analytics from './pages/Analytics';
 import Help from './pages/Help';
 import NotFound from './pages/NotFound';
 
@@ -43,7 +42,6 @@ const AppRoutes = () => {
         <Route path="projects" element={<Projects />} />
         <Route path="tasks" element={<Tasks />} />
         <Route path="calendar" element={<Calendar />} />
-        <Route path="analytics" element={<Analytics />} />
         <Route path="team" element={<Team />} />
         <Route path="help" element={<Help />} />
         <Route path="*" element={<NotFound />} />
